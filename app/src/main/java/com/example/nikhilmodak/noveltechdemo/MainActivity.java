@@ -17,19 +17,24 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String TAG = "Log";
+    private FirebaseDatabase database;
+    private DatabaseReference myRef;
+
     private TextView mTextView;
     private EditText mKeyEditText;
     private EditText mValueEditText;
     private Button mSubmitButton;
-    private FirebaseDatabase database;
-    private DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeFirebaseDBFields();
+        initializeUIFields();
+    }
+
+    private void initializeFirebaseDBFields() {
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference("noveltechdemo-f15e1");
 
@@ -45,31 +50,28 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("The read failed: " + databaseError.getCode());
             }
         });
+    }
 
+    private void initializeUIFields() {
         mTextView = (TextView) findViewById(R.id.testTxt);
         mKeyEditText = (EditText) findViewById(R.id.KeyText);
         mValueEditText = (EditText) findViewById(R.id.ValueText);
         mSubmitButton = (Button) findViewById(R.id.submitBtn);
-        //mTextView.setText(myRef.getKey());
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String key = mKeyEditText.getText().toString();
-                String value = mValueEditText.getText().toString();
-                myRef = database.getReference(key);
-                myRef.setValue(value);
-                mTextView.setText(key);
+                setKeyValuePair();
             }
         });
-
-
-
-        //final ObjectExample temp = new ObjectExample("Banana", 0, "a banana");
-        //myRef.setValue(temp);
-
-
-
-
     }
+
+    private void setKeyValuePair() {
+        String key = mKeyEditText.getText().toString();
+        String value = mValueEditText.getText().toString();
+        myRef = database.getReference(key);
+        myRef.setValue(value);
+        mTextView.setText(key);
+    }
+
 }
