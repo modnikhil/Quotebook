@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">NovelTechDemo</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="incorrect_email_password">Incorrect Email or Password</string>
+    <string name="sign_in_failed">signInWithEmail:failed</string>
+    <string name="sign_in_success">signInWithEmail:onComplete:</string>
+    <string name="email_already_exists">An account with this email already exists</string>
+    <string name="create_acc_success">createUserWithEmail:onComplete:</string>
+    <string name="signed_in_listener">onAuthStateChanged:signed_in:</string>
+    <string name="signed_out_listener">onAuthStateChanged:signed_out</string>
+    <string name="auth">Auth</string>
+    <string name="create">Create</string>
+    <string name="log_in">Log In</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -14,4 +24,5 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
 </resources>

@@ -96,10 +96,11 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    Log.d("TAG", "onAuthStateChanged:signed_in:" + user.getUid());
+                    Log.d(getString(R.string.auth),
+                            getString(R.string.signed_in_listener) + user.getUid());
                 } else {
                     // User is signed out
-                    Log.d("TAG", "onAuthStateChanged:signed_out");
+                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
                 }
             }
         };
@@ -162,10 +163,11 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d("Tag", "createUserWithEmail:onComplete:" + task.isSuccessful());
+                        Log.d(getString(R.string.create),
+                                getString(R.string.create_acc_success) + task.isSuccessful());
                         if (!task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this,
-                                    "An account with this email already exists",
+                                    R.string.email_already_exists,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -187,10 +189,12 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d("TAG", "signInWithEmail:onComplete:" + task.isSuccessful());
+                        Log.d(getString(R.string.log_in),
+                                getString(R.string.sign_in_success) + task.isSuccessful());
                         if (!task.isSuccessful()) {
-                            Log.w("TAG", "signInWithEmail:failed", task.getException());
-                            Toast.makeText(LoginActivity.this, "Fail",
+                            Log.w(getString(R.string.log_in),
+                                    getString(R.string.sign_in_failed), task.getException());
+                            Toast.makeText(LoginActivity.this, R.string.incorrect_email_password,
                                     Toast.LENGTH_SHORT).show();
                         }
                         else {
