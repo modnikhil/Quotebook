@@ -161,6 +161,12 @@ public class LoginActivity extends AppCompatActivity {
     private void createAccount(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    /**
+                     * This method is called when a task related to signing up
+                     * is completed. Depending on whether or not the sign up request
+                     * was successful, a toast will show up.
+                     * @param task the auth task that was done.
+                     */
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(getString(R.string.create),
@@ -187,6 +193,12 @@ public class LoginActivity extends AppCompatActivity {
     private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    /**
+                     * This method is called when a task related to logging in
+                     * is completed. If the log in is successful, the user will
+                     * be taken to the MainActivity activity.
+                     * @param task the auth task that was done.
+                     */
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(getString(R.string.log_in),
