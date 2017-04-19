@@ -13,6 +13,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.concurrent.CountDownLatch;
+
 /**
  * This is the main activity where users can add entries
  * to the database and view what they entered through a
@@ -23,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
  * @author Nikhil Modak
  */
 public class MainActivity extends AppCompatActivity {
+
 
     private FirebaseDatabase database;
     private DatabaseReference myRef;
