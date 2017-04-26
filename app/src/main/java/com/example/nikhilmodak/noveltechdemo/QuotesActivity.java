@@ -22,7 +22,7 @@ public class QuotesActivity extends AppCompatActivity {
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference myRef;
-    private DatabaseReference mDirectoryRef = database.getReference("Quotes");
+    private DatabaseReference mDirectoryRef; ;
     private FirebaseUser user;
 
     private RecyclerView mQuotesRecyclerView;
@@ -53,26 +53,8 @@ public class QuotesActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
 
-        myRef.addValueEventListener(new ValueEventListener() {
-            /**
-             * Reads and listens for changes to the entire contents of a path
-             * @param dataSnapshot the snapshot of the data that was changed
-             */
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //String post = dataSnapshot.getValue(String.class);
-                //System.out.println(post);
-            }
-
-            /**
-             * Called when a request is unable to be made in a database.
-             * @param databaseError the type of error that was caused in the database
-             */
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println(databaseError.getCode());
-            }
-        });
+        String groupID = getIntent().getStringExtra("ID");
+        mDirectoryRef = database.getReference("Groups").child(groupID);
     }
 
     /**

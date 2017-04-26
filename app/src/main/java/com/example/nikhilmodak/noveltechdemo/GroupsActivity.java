@@ -126,33 +126,6 @@ public class GroupsActivity extends AppCompatActivity {
         });*/
     }
 
-    /**
-     * This method takes the key that was entered in the key
-     * edit text and the value that was entered in the value
-     * edit text and enters them into the database. If the key
-     * already exists, its value is replaced with the new one.
-     * The text view's text is also updated with the entered key.
-     */
-    private void setKeyValuePair() {
-        String key = mKeyEditText.getText().toString();
-        String value = mValueEditText.getText().toString();
-        myRef = database.getReference();
-        String uid = user.getUid();
-
-        DatabaseReference emailRef = myRef.child("Users").child(uid);
-        emailRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                User tempUser = dataSnapshot.getValue(User.class);
-                mTextView.setText(tempUser.getEmail());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });
-    }
 
     @Override
     protected void onStart() {
@@ -170,6 +143,7 @@ public class GroupsActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         // Launch PostDetailActivity
                         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+                        intent.putExtra("ID", model.getGroupID());
                         startActivity(intent);
                     }
                 });
@@ -183,6 +157,12 @@ public class GroupsActivity extends AppCompatActivity {
         };
 
         mGroupsRecyclerView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        invalidateOptionsMenu();
     }
 
 
@@ -213,9 +193,12 @@ public class GroupsActivity extends AppCompatActivity {
                 Quote quote1 = new Quote("JRGLKGJTRLGJ", "Geoff");
                 Quote quote2 = new Quote("HELLO", "Jeff");
                 mDirectoryRef.push().setValue(tempGroup);
-                DatabaseReference mQuotes = database.getReference("Quotes");
-                mQuotes.push().setValue(quote1);
-                mQuotes.push().setValue(quote2);
+                mGroups.child(tempGroup.getGroupID()).push().setValue(quote1);
+                mGroups.child(tempGroup.getGroupID()).push().setValue(quote1);
+
+                //DatabaseReference mQuotes = database.getReference("Quotes");
+                //mQuotes.push().setValue(quote1);
+                //mQuotes.push().setValue(quote2);
                 return true;
 
             default:

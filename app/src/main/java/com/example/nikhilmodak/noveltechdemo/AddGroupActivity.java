@@ -28,7 +28,7 @@ public class AddGroupActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_add_group).setVisible(false);
+        menu.findItem(R.id.action_add_group).setVisible(true);
         return true;
     }
 
