@@ -20,26 +20,24 @@ import com.google.firebase.database.ValueEventListener;
 
 public class QuotesActivity extends AppCompatActivity {
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference myRef;
-    private DatabaseReference mDirectoryRef; ;
+    private FirebaseDatabase database;
+    private DatabaseReference mDirectoryRef;
     private FirebaseUser user;
 
     private RecyclerView mQuotesRecyclerView;
     private FirebaseRecyclerAdapter<Quote, QuoteViewHolder> mAdapter;
     private MenuItem mDynamicMenuItem;
 
+    private String groupID;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quotes);
 
-        mQuotesRecyclerView = (RecyclerView) findViewById(R.id.groupsRecyclerView);
-        mQuotesRecyclerView.setHasFixedSize(true);
-        mQuotesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        initializeFirebaseDBFields();
         initializeUIFields();
+        initializeFirebaseDBFields();
     }
 
     /**
@@ -51,9 +49,7 @@ public class QuotesActivity extends AppCompatActivity {
      */
     private void initializeFirebaseDBFields() {
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
-
-        String groupID = getIntent().getStringExtra("ID");
+        groupID = getIntent().getStringExtra("ID");
         mDirectoryRef = database.getReference("Groups").child(groupID);
     }
 
@@ -64,19 +60,9 @@ public class QuotesActivity extends AppCompatActivity {
      * with the values enetered into the edit texts.
      */
     private void initializeUIFields() {
-
-
-      /*  mSubmitButton.setOnClickListener(new View.OnClickListener() {
-            *//**
-         * Gives the submit button a method to set values to
-         * the Firebase database.
-         * @param v the current View
-         *//*
-            @Override
-            public void onClick(View v) {
-                setKeyValuePair();
-            }
-        });*/
+        mQuotesRecyclerView = (RecyclerView) findViewById(R.id.groupsRecyclerView);
+        mQuotesRecyclerView.setHasFixedSize(true);
+        mQuotesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
 
@@ -90,21 +76,10 @@ public class QuotesActivity extends AppCompatActivity {
             protected void populateViewHolder(QuoteViewHolder viewHolder,
                                               final Quote model, int position) {
                 viewHolder.mTextView.setText(model.getQuote());
-
-                /*viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Launch PostDetailActivity
-                        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
-                        startActivity(intent);
-                    }
-                });
-                */
             }
 
             @Override
             protected Quote parseSnapshot(DataSnapshot snapshot) {
-                //Log.d("mDirectoryRef", "parseSnapshot: " + snapshot.toString());
                 return super.parseSnapshot(snapshot);
             }
         };
@@ -114,10 +89,8 @@ public class QuotesActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         setTitle(R.string.quotes);
         getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
         return true;
     }
@@ -125,8 +98,24 @@ public class QuotesActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_add_group).setVisible(false);
+        mDynamicMenuItem.setVisible(true);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_add_group:
+                Intent intent = new Intent(getApplicationContext(), AddQuoteActivity.class);
+                intent.putExtra("groupID", groupID);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                getApplicationContext().startActivity(intent);
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -145,7 +134,4 @@ public class QuotesActivity extends AppCompatActivity {
             mTextView = (TextView) view.findViewById(android.R.id.text1);
         }
     }
-
-
-
 }

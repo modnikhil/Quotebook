@@ -33,21 +33,14 @@ import com.google.firebase.database.ValueEventListener;
  */
 public class GroupsActivity extends AppCompatActivity {
 
-
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference myRef;
-    private DatabaseReference mDirectoryRef = database.getReference("Directory");
-    private DatabaseReference mGroups = database.getReference("Groups");
+    private FirebaseDatabase database;
+    private DatabaseReference mDirectoryRef;
+    private DatabaseReference mGroups;
     private FirebaseUser user;
 
     private RecyclerView mGroupsRecyclerView;
     private FirebaseRecyclerAdapter<Group, GroupViewHolder> mAdapter;
-
     private MenuItem mDynamicMenuItem;
-    private TextView mTextView;
-    private EditText mKeyEditText;
-    private EditText mValueEditText;
-    private Button mSubmitButton;
 
 
     /**
@@ -59,16 +52,12 @@ public class GroupsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        mGroupsRecyclerView = (RecyclerView) findViewById(R.id.groupsRecyclerView);
-        mGroupsRecyclerView.setHasFixedSize(true);
-        mGroupsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        setContentView(R.layout.activity_groups);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        initializeFirebaseDBFields();
         initializeUIFields();
+        initializeFirebaseDBFields();
     }
 
     /**
@@ -80,28 +69,8 @@ public class GroupsActivity extends AppCompatActivity {
      */
     private void initializeFirebaseDBFields() {
         database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            /**
-             * Reads and listens for changes to the entire contents of a path
-             * @param dataSnapshot the snapshot of the data that was changed
-             */
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //String post = dataSnapshot.getValue(String.class);
-                //System.out.println(post);
-            }
-
-            /**
-             * Called when a request is unable to be made in a database.
-             * @param databaseError the type of error that was caused in the database
-             */
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println(databaseError.getCode());
-            }
-        });
+        mDirectoryRef = database.getReference("Directory");
+        mGroups = database.getReference("Groups");
     }
 
     /**
@@ -111,19 +80,9 @@ public class GroupsActivity extends AppCompatActivity {
      * with the values enetered into the edit texts.
      */
     private void initializeUIFields() {
-
-
-      /*  mSubmitButton.setOnClickListener(new View.OnClickListener() {
-            *//**
-             * Gives the submit button a method to set values to
-             * the Firebase database.
-             * @param v the current View
-             *//*
-            @Override
-            public void onClick(View v) {
-                setKeyValuePair();
-            }
-        });*/
+        mGroupsRecyclerView = (RecyclerView) findViewById(R.id.groupsRecyclerView);
+        mGroupsRecyclerView.setHasFixedSize(true);
+        mGroupsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
 
@@ -137,7 +96,6 @@ public class GroupsActivity extends AppCompatActivity {
             protected void populateViewHolder(GroupViewHolder viewHolder,
                                               final Group model, int position) {
                 viewHolder.mTextView.setText(model.getName());
-
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -151,20 +109,12 @@ public class GroupsActivity extends AppCompatActivity {
 
             @Override
             protected Group parseSnapshot(DataSnapshot snapshot) {
-                //Log.d("mDirectoryRef", "parseSnapshot: " + snapshot.toString());
                 return super.parseSnapshot(snapshot);
             }
         };
 
         mGroupsRecyclerView.setAdapter(mAdapter);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        invalidateOptionsMenu();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -189,24 +139,20 @@ public class GroupsActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_add_group:
                 String key = mGroups.push().getKey();
-                Group tempGroup = new Group("sample", key, null, null);
-                Quote quote1 = new Quote("JRGLKGJTRLGJ", "Geoff");
-                Quote quote2 = new Quote("HELLO", "Jeff");
-                mDirectoryRef.push().setValue(tempGroup);
-                mGroups.child(tempGroup.getGroupID()).push().setValue(quote1);
-                mGroups.child(tempGroup.getGroupID()).push().setValue(quote1);
-
-                //DatabaseReference mQuotes = database.getReference("Quotes");
-                //mQuotes.push().setValue(quote1);
-                //mQuotes.push().setValue(quote2);
+                Group group = new Group("sample", key, null, null);
+                mDirectoryRef.push().setValue(group);
                 return true;
-
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        invalidateOptionsMenu();
     }
 
     @Override
