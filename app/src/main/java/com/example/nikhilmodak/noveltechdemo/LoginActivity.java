@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +17,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * This activity represents the first Activity the user
@@ -30,11 +34,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference mDirectory = database.getReference("Directory");
+    private DatabaseReference mGroups = database.getReference("Groups");
 
     private EditText mEmailEditText;
     private EditText mPswdEditText;
     private Button mLoginButton;
     private Button mSignUpButton;
+    private MenuItem mDynamicMenuItem;
 
     /**
      * This method is called when the activity is first
@@ -142,6 +150,8 @@ public class LoginActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
+
+
                 String email = mEmailEditText.getText().toString();
                 String password = mPswdEditText.getText().toString();
                 signIn(email, password);
@@ -158,7 +168,7 @@ public class LoginActivity extends AppCompatActivity {
      * @param email the email the user inputted
      * @param password the password the user inputted
      */
-    private void createAccount(String email, String password) {
+    private void createAccount(final String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     /**
@@ -175,6 +185,13 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this,
                                     R.string.email_already_exists,
                                     Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            intent.putExtra("Email", email);
+                            intent.putExtra("UserID", user.getUid());
+                            getApplicationContext().startActivity(intent);
                         }
                     }
                 });
@@ -196,7 +213,7 @@ public class LoginActivity extends AppCompatActivity {
                     /**
                      * This method is called when a task related to logging in
                      * is completed. If the log in is successful, the user will
-                     * be taken to the MainActivity activity.
+                     * be taken to the GroupsActivity activity.
                      * @param task the auth task that was done.
                      */
                     @Override
@@ -210,11 +227,29 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             getApplicationContext().startActivity(intent);
                         }
                     }
                 });
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        setTitle(R.string.app_name);
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        // Get dynamic menu item
+        mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(R.id.action_add_group).setVisible(false);
+        return true;
+    }
+
 }

@@ -21,7 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".GroupsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -32,6 +32,10 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
         </activity>
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".AddQuoteActivity" />
+        <activity android:name=".QuotesActivity" />
+        <activity android:name=".AddGroupActivity" />
     </application>
 
 </manifest>

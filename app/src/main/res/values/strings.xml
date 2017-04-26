@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NovelTechDemo</string>
+    <string name="app_name">Quotebook</string>
     <string name="title_activity_login">Sign in</string>
     <string name="incorrect_email_password">Incorrect Email or Password</string>
     <string name="sign_in_failed">signInWithEmail:failed</string>
@@ -9,8 +9,13 @@
     <string name="signed_in_listener">onAuthStateChanged:signed_in:</string>
     <string name="signed_out_listener">onAuthStateChanged:signed_out</string>
     <string name="auth">Auth</string>
-    <string name="create">Create</string>
+    <string name="create">Create Account</string>
     <string name="log_in">Log In</string>
+    <string name="groups">My Groups</string>
+    <string name="quotes">My Group\'s Quotes</string>
+    <string name="add_quote">Add A Quote</string>
+    <string name="add_group">Add A Group</string>
+
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

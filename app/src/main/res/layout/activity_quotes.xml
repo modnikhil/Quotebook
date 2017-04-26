@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.nikhilmodak.noveltechdemo.GroupsActivity">
+    tools:context="com.example.nikhilmodak.noveltechdemo.QuotesActivity">
 
     <FrameLayout
         android:layout_width="0dp"
@@ -30,7 +30,5 @@
             tools:layout_editor_absoluteY="8dp" />
 
     </FrameLayout>
-
-
 
 </android.support.constraint.ConstraintLayout>

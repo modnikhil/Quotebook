@@ -10,10 +10,15 @@ public class Quote {
     private String speaker;
     private User author;
 
-    public Quote(String quote, String speaker, User author) {
+    public Quote() {
+        quote = "sup";
+        speaker = "hey";
+    }
+
+    public Quote(String quote, String speaker) {
         this.quote = quote;
         this.speaker = speaker;
-        this.author = author;
+        //this.author = author;
     }
 
     public String getQuote() {

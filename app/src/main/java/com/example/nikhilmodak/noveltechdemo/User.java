@@ -6,26 +6,33 @@ package com.example.nikhilmodak.noveltechdemo;
 
 public class User {
 
-    private String name;
+    private String username;
     private String email;
+    private String userID;
 
     public User() {
 
-        name = "name";
+        username = "username";
         email = "email";
+        userID = "userID";
     }
 
-    public User(String name, String email) {
-        this.name = name;
+    public User(String username, String email, String userID) {
+        this.username = username;
         this.email = email;
+        this.userID = userID;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
     public String getEmail() {
         return email;
+    }
+
+    public String getUserID() {
+        return userID;
     }
 
 }
