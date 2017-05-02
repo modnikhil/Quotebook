@@ -1,15 +1,18 @@
 package com.example.nikhilmodak.noveltechdemo;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -20,6 +23,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 
 /**
@@ -36,11 +40,17 @@ public class GroupsActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference mDirectoryRef;
     private DatabaseReference mGroups;
+    private DatabaseReference mUserGroups;
     private FirebaseUser user;
+
+
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     private RecyclerView mGroupsRecyclerView;
     private FirebaseRecyclerAdapter<Group, GroupViewHolder> mAdapter;
     private MenuItem mDynamicMenuItem;
+    private MenuItem mAddMember;
 
 
     /**
@@ -54,8 +64,6 @@ public class GroupsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_groups);
 
-        user = FirebaseAuth.getInstance().getCurrentUser();
-
         initializeUIFields();
         initializeFirebaseDBFields();
     }
@@ -68,9 +76,32 @@ public class GroupsActivity extends AppCompatActivity {
      * inserted, updated, removed).
      */
     private void initializeFirebaseDBFields() {
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            /**
+             * This method is prompted when a user logs in or logs out.
+             * It adds an observer for auth state changes.
+             * @param firebaseAuth the entry point of the Firebase SDK
+             */
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+                    Log.d(getString(R.string.auth),
+                            getString(R.string.signed_in_listener) + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
+                }
+            }
+        };
+
         database = FirebaseDatabase.getInstance();
         mDirectoryRef = database.getReference("Directory");
         mGroups = database.getReference("Groups");
+        mUserGroups = database.getReference("Users").child(user.getUid()).child("Groups");
     }
 
     /**
@@ -89,13 +120,14 @@ public class GroupsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
+        mAuth.addAuthStateListener(mAuthListener);
         mAdapter = new FirebaseRecyclerAdapter<Group, GroupViewHolder>(Group.class,
-                android.R.layout.simple_list_item_1, GroupViewHolder.class, mDirectoryRef) {
+                R.layout.group_list_item , GroupViewHolder.class, mUserGroups) {
             @Override
             protected void populateViewHolder(GroupViewHolder viewHolder,
                                               final Group model, int position) {
                 viewHolder.mTextView.setText(model.getName());
+
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -105,6 +137,7 @@ public class GroupsActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
+
             }
 
             @Override
@@ -123,6 +156,7 @@ public class GroupsActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.mymenu, menu);
         // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
         return true;
     }
 
@@ -131,17 +165,24 @@ public class GroupsActivity extends AppCompatActivity {
         super.onPrepareOptionsMenu(menu);
         // Here is just a good place to update item
         mDynamicMenuItem.setVisible(true);
+        mAddMember.setVisible(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.action_add_group:
-                String key = mGroups.push().getKey();
-                Group group = new Group("sample", key, null, null);
-                mDirectoryRef.push().setValue(group);
+                //String key = mGroups.push().getKey();
+                //Group group = new Group("sample", key);
+                //mDirectoryRef.push().setValue(group);
+                intent = new Intent(getApplicationContext(), AddGroupActivity.class);
+                //intent.putExtra("groupID", groupID);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                getApplicationContext().startActivity(intent);
                 return true;
+
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
@@ -162,14 +203,19 @@ public class GroupsActivity extends AppCompatActivity {
         if (mAdapter != null) {
             mAdapter.cleanup();
         }
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder {
         TextView mTextView;
+        ImageView mImageView;
 
         public GroupViewHolder(View view) {
             super(view);
-            mTextView = (TextView) view.findViewById(android.R.id.text1);
+            mTextView = (TextView) view.findViewById(R.id.titleTextView);
+            mImageView = (ImageView) view.findViewById(R.id.imageView);
         }
     }
 

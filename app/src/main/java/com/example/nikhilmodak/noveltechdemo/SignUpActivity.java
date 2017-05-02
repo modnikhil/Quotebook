@@ -16,7 +16,6 @@ public class SignUpActivity extends AppCompatActivity {
 
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference myRef  = database.getReference();
-    private static final String DATABASE_NAME = "noveltechdemo-f15e1";
 
     private TextView mUsernameText;
     private Button mSubmitButton;

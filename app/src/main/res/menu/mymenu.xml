@@ -5,5 +5,11 @@
         android:id="@+id/action_add_group"
         android:icon="@drawable/ic_add_black_24dp"
         android:title="@string/app_name"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_add_member"
+        android:icon="@drawable/iconmonstr_menu"
+        android:title="@string/app_name"
+        app:showAsAction="always" />
+
 </menu>

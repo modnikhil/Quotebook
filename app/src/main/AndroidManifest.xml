@@ -36,6 +36,7 @@
         <activity android:name=".AddQuoteActivity" />
         <activity android:name=".QuotesActivity" />
         <activity android:name=".AddGroupActivity" />
+        <activity android:name=".AddMemberActivity"></activity>
     </application>
 
 </manifest>

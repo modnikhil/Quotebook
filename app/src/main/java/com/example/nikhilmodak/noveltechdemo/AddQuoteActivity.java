@@ -59,8 +59,8 @@ public class AddQuoteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String quoteText = mQuoteEditText.getText().toString();
                 String speaker = mSpeakerEditText.getText().toString();
-                Quote newQuote = new Quote(quoteText, speaker);
-                createQuote(newQuote);
+
+                createQuote(quoteText, speaker);
             }
         });
 
@@ -92,8 +92,10 @@ public class AddQuoteActivity extends AppCompatActivity {
     }
 
 
-    private void createQuote(Quote quote) {
-        mDirectoryRef.push().setValue(quote);
+    private void createQuote(String quoteText, String speaker) {
+        String key = mDirectoryRef.push().getKey();
+        Quote newQuote = new Quote(quoteText, speaker, key);
+        mDirectoryRef.child(key).setValue(newQuote);
 
         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
         intent.putExtra("ID", groupID);

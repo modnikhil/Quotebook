@@ -1,6 +1,7 @@
 package com.example.nikhilmodak.noveltechdemo;
 
 import android.content.Intent;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,15 +14,18 @@ import android.widget.EditText;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class AddGroupActivity extends AppCompatActivity {
+public class AddMemberActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private DatabaseReference mDirectoryRef;
     private DatabaseReference mGroups;
-    private DatabaseReference mUserGroups;
+    private DatabaseReference mUsers;
     private FirebaseUser user;
 
     private FirebaseAuth mAuth;
@@ -29,16 +33,18 @@ public class AddGroupActivity extends AppCompatActivity {
 
     private MenuItem mDynamicMenuItem;
     private MenuItem mAddMember;
-    private EditText mNameEditText;
     private EditText mMemberEditText;
     private Button mSubmitButton;
     private Button mCancelButton;
 
+    private String groupID;
+    private Group group;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_group);
-
+        setContentView(R.layout.activity_add_member);
         initializeUIFields();
         initializeFirebaseDBFields();
     }
@@ -53,9 +59,8 @@ public class AddGroupActivity extends AppCompatActivity {
      * is created.
      */
     private void initializeUIFields() {
-        mNameEditText = (EditText) findViewById(R.id.nameEditText);
         mMemberEditText = (EditText) findViewById(R.id.memberEditText);
-        mSubmitButton = (Button) findViewById(R.id.submitGroupButton);
+        mSubmitButton = (Button) findViewById(R.id.submitMemberButton);
         mCancelButton = (Button) findViewById(R.id.cancelButton);
 
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -66,12 +71,9 @@ public class AddGroupActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
-                String nameText = mNameEditText.getText().toString();
-                //String member = mMemberEditText.getText().toString();
-                String key = mGroups.push().getKey();
-                //Group group = new Group("sample", key, null, null);
-                Group newGroup = new Group(nameText, key);
-                createGroup(newGroup);
+                String member = mMemberEditText.getText().toString();
+
+                addMember(member);
             }
         });
 
@@ -88,24 +90,6 @@ public class AddGroupActivity extends AppCompatActivity {
         });
     }
 
-
-    private void createGroup(Group group) {
-        //mDirectoryRef.push().setValue(quote);
-        //String key = mGroups.push().getKey();
-        //Group group = new Group("sample", key, null, null);
-        mDirectoryRef.push().setValue(group);
-        mUserGroups.push().setValue(group);
-
-        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
-        startActivity(intent);
-    }
-
-    private void cancelActivity() {
-        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
-        startActivity(intent);
-    }
-
-
     /**
      * This method initializes the Firebase fields
      * needed to read and write entities to the database.
@@ -115,7 +99,7 @@ public class AddGroupActivity extends AppCompatActivity {
      */
     private void initializeFirebaseDBFields() {
         mAuth = FirebaseAuth.getInstance();
-        user = mAuth.getCurrentUser();
+        //user = mAuth.getCurrentUser();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             /**
              * This method is prompted when a user logs in or logs out.
@@ -137,11 +121,53 @@ public class AddGroupActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mDirectoryRef = database.getReference("Directory");
         mGroups = database.getReference("Groups");
-        mUserGroups = database.getReference("Users").child(user.getUid()).child("Groups");
+        groupID = getIntent().getStringExtra("groupID");
+        mDirectoryRef = mGroups.child(groupID);
+        mUsers = database.getReference("Users");
+        database.getReference("Directory").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Group tempGroup = snapshot.getValue(Group.class);
+                    System.out.println(groupID);
+                    System.out.println(tempGroup.getGroupID());
+                    if (snapshot.getValue(Group.class).getGroupID().equalsIgnoreCase(groupID)) {
+                        group = snapshot.getValue(Group.class);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
+    private void addMember(final String email) {
+        //mDirectoryRef.push().setValue(group);
+        mUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    User user = snapshot.getValue(User.class);
+                    System.out.println(user.getEmail().equalsIgnoreCase(email));
+                    if (user.getEmail().equalsIgnoreCase(email)) {
+                        mUsers.child(user.getUserID()).child("Groups").push().setValue(group);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        startActivity(intent);
+    }
+
+    private void cancelActivity() {
+        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -160,5 +186,4 @@ public class AddGroupActivity extends AppCompatActivity {
         mDynamicMenuItem.setVisible(false);
         return true;
     }
-
 }
