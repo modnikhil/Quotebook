@@ -85,11 +85,13 @@ public class AddGroupActivity extends AppCompatActivity {
         mUserGroups.push().setValue(group);
 
         Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
@@ -112,15 +114,6 @@ public class AddGroupActivity extends AppCompatActivity {
              */
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(getString(R.string.auth),
-                            getString(R.string.signed_in_listener) + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
-                }
             }
         };
 
@@ -131,6 +124,13 @@ public class AddGroupActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * On creating the menu bar, set the title of it
+     * to the appropriate activity, inflate the menu,
+     * and populate it with the appropriate
+     * @param menu the menu bar to populate
+     * @return whether the menu was created or not
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

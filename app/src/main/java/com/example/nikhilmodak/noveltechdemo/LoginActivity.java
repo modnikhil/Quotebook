@@ -104,12 +104,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
-                    // User is signed in
-                    Log.d(getString(R.string.auth),
-                            getString(R.string.signed_in_listener) + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
+                    Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }
             }
         };
@@ -129,19 +126,6 @@ public class LoginActivity extends AppCompatActivity {
         mLoginButton = (Button) findViewById(R.id.loginButton);
         mSignUpButton = (Button) findViewById(R.id.signButton);
 
-        mSignUpButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * The method called when the sign up button is clicked.
-             * Passes the current email and password into createAccount()
-             * @param v the current View
-             */
-            @Override
-            public void onClick(View v) {
-                String email = mEmailEditText.getText().toString();
-                String password = mPswdEditText.getText().toString();
-                createAccount(email, password);
-            }
-        });
 
         mLoginButton.setOnClickListener(new View.OnClickListener() {
             /**
@@ -153,48 +137,61 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = mEmailEditText.getText().toString();
                 String password = mPswdEditText.getText().toString();
-                signIn(email, password);
+                if (email.length() == 0 || password.length() == 0) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_field_required,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (password.length() < 6) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_invalid_password,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (!email.contains("@")) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_invalid_email,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    signIn(email, password);
+                }
             }
         });
+
+        mSignUpButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * The method called when the sign up button is clicked.
+             * Passes the current email and password into createAccount()
+             * @param v the current View
+             */
+            @Override
+            public void onClick(View v) {
+                String email = mEmailEditText.getText().toString();
+                String password = mPswdEditText.getText().toString();
+                if (email.length() == 0 || password.length() == 0) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_field_required,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (password.length() < 6) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_invalid_password,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else if (!email.contains("@")) {
+                    Toast.makeText(LoginActivity.this,
+                            R.string.error_invalid_email,
+                            Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    createAccount(email, password);
+                }
+            }
+        });
+
+
     }
 
-    /**
-     * The method called to create a new account in the Firebase
-     * database. If sign in fails, display a message to the user.
-     * If sign in succeeds the auth state listener will be notified
-     * and logic to handle the signed in user can be handled in
-     * the listener.
-     * @param email the email the user inputted
-     * @param password the password the user inputted
-     */
-    private void createAccount(final String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    /**
-                     * This method is called when a task related to signing up
-                     * is completed. Depending on whether or not the sign up request
-                     * was successful, a toast will show up.
-                     * @param task the auth task that was done.
-                     */
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(getString(R.string.create),
-                                getString(R.string.create_acc_success) + task.isSuccessful());
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this,
-                                    R.string.email_already_exists,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                            intent.putExtra("Email", email);
-                            intent.putExtra("UserID", user.getUid());
-                            getApplicationContext().startActivity(intent);
-                        }
-                    }
-                });
-    }
 
     /**
      * The method called to sign in an old user into the application.
@@ -228,11 +225,50 @@ public class LoginActivity extends AppCompatActivity {
                         else {
                             Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            getApplicationContext().startActivity(intent);
+                            startActivity(intent);
                         }
                     }
                 });
     }
+
+    /**
+     * The method called to create a new account in the Firebase
+     * database. If sign in fails, display a message to the user.
+     * If sign in succeeds the auth state listener will be notified
+     * and logic to handle the signed in user can be handled in
+     * the listener.
+     * @param email the email the user inputted
+     * @param password the password the user inputted
+     */
+    private void createAccount(final String email, String password) {
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    /**
+                     * This method is called when a task related to signing up
+                     * is completed. Depending on whether or not the sign up request
+                     * was successful, a toast will show up.
+                     * @param task the auth task that was done.
+                     */
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.d(getString(R.string.create),
+                                getString(R.string.create_acc_success) + task.isSuccessful());
+                        if (!task.isSuccessful()) {
+                            Toast.makeText(LoginActivity.this,
+                                    R.string.error_invalid_email,
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Intent intent = new Intent(getApplicationContext(), SignUpActivity.class);
+                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            intent.putExtra("Email", email);
+                            intent.putExtra("UserID", user.getUid());
+                            startActivity(intent);
+                        }
+                    }
+                });
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

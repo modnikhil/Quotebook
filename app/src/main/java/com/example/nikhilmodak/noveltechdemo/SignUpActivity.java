@@ -14,8 +14,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference myRef  = database.getReference();
+    private FirebaseDatabase database;
+    private DatabaseReference mUsers;
 
     private TextView mUsernameText;
     private Button mSubmitButton;
@@ -31,10 +31,14 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
+        receiveExtras();
+        initializeUIFields();
+        initializeFirebaseDBFields();
+    }
+
+    private void receiveExtras() {
         email = getIntent().getStringExtra("Email");
         userID = getIntent().getStringExtra("UserID");
-
-        initializeUIFields();
     }
 
     private void initializeUIFields() {
@@ -65,12 +69,23 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method initializes the Firebase fields
+     * needed to read and write entities to the database.
+     * It also adds a listener to the reference requested to
+     * check for when the reference is updated (e.g. keys are
+     * inserted, updated, removed).
+     */
+    private void initializeFirebaseDBFields() {
+        database = FirebaseDatabase.getInstance();
+        mUsers = database.getReference(DatabaseKeyConstants.USERS);
+    }
+
     private void createNewUser() {
         String username = mUsernameText.getText().toString();
         User newUser = new User(username, email, userID);
 
-        DatabaseReference usersRef = myRef.child(DatabaseKeyConstants.USERS);
-        DatabaseReference childRef = usersRef.child(userID);
+        DatabaseReference childRef = mUsers.child(userID);
         childRef.setValue(newUser);
 
         Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);

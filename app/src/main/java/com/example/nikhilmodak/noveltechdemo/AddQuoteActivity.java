@@ -98,13 +98,12 @@ public class AddQuoteActivity extends AppCompatActivity {
         Quote newQuote = new Quote(quoteText, speaker, key);
         mDirectoryRef.child(key).setValue(newQuote);
 
-        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
-        intent.putExtra("ID", groupID);
-        startActivity(intent);
+        cancelActivity();
     }
 
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("ID", groupID);
         startActivity(intent);
     }

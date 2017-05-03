@@ -78,15 +78,6 @@ public class GroupsActivity extends AppCompatActivity {
              */
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(getString(R.string.auth),
-                            getString(R.string.signed_in_listener) + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
-                }
             }
         };
 
@@ -110,6 +101,8 @@ public class GroupsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+
         mAuth.addAuthStateListener(mAuthListener);
         mAdapter = new FirebaseRecyclerAdapter<Group, GroupViewHolder>(Group.class,
                 R.layout.group_list_item , GroupViewHolder.class, mUserGroups) {
@@ -148,9 +141,6 @@ public class GroupsActivity extends AppCompatActivity {
         if (mAdapter != null) {
             mAdapter.cleanup();
         }
-        //if (mAuthListener != null) {
-        //    mAuth.removeAuthStateListener(mAuthListener);
-        //}
     }
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder {
@@ -166,7 +156,6 @@ public class GroupsActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
         setTitle(R.string.groups);
         getMenuInflater().inflate(R.menu.mymenu, menu);
 
@@ -179,6 +168,7 @@ public class GroupsActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         mDynamicMenuItem.setVisible(true);
+        mAddMember.setIcon(R.drawable.iconmonstr_log_out);
         mAddMember.setVisible(true);
         return true;
     }
@@ -190,7 +180,7 @@ public class GroupsActivity extends AppCompatActivity {
             case R.id.action_add_group:
                 intent = new Intent(getApplicationContext(), AddGroupActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                getApplicationContext().startActivity(intent);
+                startActivity(intent);
                 return true;
             case R.id.action_add_member:
                 if (mAuthListener != null) {
@@ -198,7 +188,8 @@ public class GroupsActivity extends AppCompatActivity {
                 }
                 intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                getApplicationContext().startActivity(intent);
+                mAuth.signOut();
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

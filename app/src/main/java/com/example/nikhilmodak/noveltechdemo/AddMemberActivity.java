@@ -106,15 +106,6 @@ public class AddMemberActivity extends AppCompatActivity {
              */
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(getString(R.string.auth),
-                            getString(R.string.signed_in_listener) + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
-                }
             }
         };
 
@@ -157,13 +148,12 @@ public class AddMemberActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
-        intent.putExtra("ID", groupID);
-        startActivity(intent);
+        cancelActivity();
     }
 
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("ID", groupID);
         startActivity(intent);
     }

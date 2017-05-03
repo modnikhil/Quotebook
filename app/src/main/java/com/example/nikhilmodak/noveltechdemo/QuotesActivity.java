@@ -17,16 +17,13 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 public class QuotesActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
-    private DatabaseReference mDirectoryRef;
+    private DatabaseReference mGroup;
     private DatabaseReference mQuote;
     private DatabaseReference mQuoteLikes;
     private FirebaseUser user;
@@ -36,6 +33,7 @@ public class QuotesActivity extends AppCompatActivity {
 
     private RecyclerView mQuotesRecyclerView;
     private FirebaseRecyclerAdapter<Quote, QuoteViewHolder> mAdapter;
+
     private MenuItem mDynamicMenuItem;
     private MenuItem mAddMember;
 
@@ -69,21 +67,12 @@ public class QuotesActivity extends AppCompatActivity {
              */
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    // User is signed in
-                    Log.d(getString(R.string.auth),
-                            getString(R.string.signed_in_listener) + user.getUid());
-                } else {
-                    // User is signed out
-                    Log.d(getString(R.string.auth), getString(R.string.signed_out_listener));
-                }
             }
         };
 
         database = FirebaseDatabase.getInstance();
         groupID = getIntent().getStringExtra("ID");
-        mDirectoryRef = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
+        mGroup = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
     }
 
     /**
@@ -103,14 +92,15 @@ public class QuotesActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         mAdapter = new FirebaseRecyclerAdapter<Quote, QuoteViewHolder>(Quote.class,
-                R.layout.quote_list_item, QuoteViewHolder.class, mDirectoryRef) {
+                R.layout.quote_list_item, QuoteViewHolder.class, mGroup) {
             @Override
             protected void populateViewHolder(final QuoteViewHolder viewHolder,
                                               final Quote model, int position) {
 
-                mQuote = mDirectoryRef.child(model.getQuoteID());
+                mQuote = mGroup.child(model.getQuoteID());
                 mQuoteLikes = mQuote.child(DatabaseKeyConstants.LIKES);
-                if (model.getLikes().get(user.getUid()) != null && model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid())) {
+
+                if (userLikeExists(model)) {
                     viewHolder.mImageView.setImageResource(R.drawable.favorited_heart);
                 }
                 else {
@@ -120,11 +110,11 @@ public class QuotesActivity extends AppCompatActivity {
                 viewHolder.mImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mQuote = mDirectoryRef.child(model.getQuoteID());
+                        mQuote = mGroup.child(model.getQuoteID());
                         mQuoteLikes = mQuote.child(DatabaseKeyConstants.LIKES);
                         handleLike(model, user.getUid());
                         viewHolder.mFavorites.setText(String.valueOf(model.getLikes().size()));
-                        if (model.getLikes().get(user.getUid()) != null && model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid())) {
+                        if (userLikeExists(model)) {
                             viewHolder.mImageView.setImageResource(R.drawable.favorited_heart);
                         }
                         else {
@@ -148,10 +138,8 @@ public class QuotesActivity extends AppCompatActivity {
         if (model.getLikes().isEmpty()) {
             mQuoteLikes.child(userID).setValue(userID);
             model.getLikes().put(userID, userID);
-            return;
         }
-
-        if (model.getLikes().get(user.getUid()) != null && model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid())) {
+        else if (userLikeExists(model)) {
             mQuoteLikes.child(userID).removeValue();
             model.getLikes().remove(userID);
         }
@@ -159,10 +147,12 @@ public class QuotesActivity extends AppCompatActivity {
             mQuoteLikes.child(userID).setValue(userID);
             model.getLikes().put(userID, userID);
         }
-
     }
 
-
+    private boolean userLikeExists(Quote model) {
+        return (model.getLikes().get(user.getUid()) != null &&
+                model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid()));
+    }
 
 
     @Override
@@ -224,6 +214,7 @@ public class QuotesActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         mDynamicMenuItem.setVisible(true);
+        mAddMember.setIcon(R.drawable.ic_person_add_white_48dp);
         mAddMember.setVisible(true);
         return true;
     }
