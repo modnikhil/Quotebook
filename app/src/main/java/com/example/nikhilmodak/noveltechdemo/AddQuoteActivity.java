@@ -18,6 +18,7 @@ public class AddQuoteActivity extends AppCompatActivity {
     private DatabaseReference mDirectoryRef;
 
     private MenuItem mDynamicMenuItem;
+    private MenuItem mAddMember;
     private EditText mQuoteEditText;
     private EditText mSpeakerEditText;
     private Button mSubmitButton;
@@ -88,7 +89,7 @@ public class AddQuoteActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         groupID = getIntent().getStringExtra("groupID");
         System.out.println(groupID);
-        mDirectoryRef = database.getReference("Groups").child(groupID);
+        mDirectoryRef = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
     }
 
 
@@ -114,8 +115,9 @@ public class AddQuoteActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         setTitle(R.string.add_quote);
         getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
+
         return true;
     }
 
@@ -123,6 +125,7 @@ public class AddQuoteActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         mDynamicMenuItem.setVisible(false);
+        mAddMember.setVisible(false);
         return true;
     }
 

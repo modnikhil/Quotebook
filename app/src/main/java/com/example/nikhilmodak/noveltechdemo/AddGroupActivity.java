@@ -30,7 +30,6 @@ public class AddGroupActivity extends AppCompatActivity {
     private MenuItem mDynamicMenuItem;
     private MenuItem mAddMember;
     private EditText mNameEditText;
-    private EditText mMemberEditText;
     private Button mSubmitButton;
     private Button mCancelButton;
 
@@ -54,7 +53,6 @@ public class AddGroupActivity extends AppCompatActivity {
      */
     private void initializeUIFields() {
         mNameEditText = (EditText) findViewById(R.id.nameEditText);
-        mMemberEditText = (EditText) findViewById(R.id.memberEditText);
         mSubmitButton = (Button) findViewById(R.id.submitGroupButton);
         mCancelButton = (Button) findViewById(R.id.cancelButton);
 
@@ -67,20 +65,13 @@ public class AddGroupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String nameText = mNameEditText.getText().toString();
-                //String member = mMemberEditText.getText().toString();
                 String key = mGroups.push().getKey();
-                //Group group = new Group("sample", key, null, null);
                 Group newGroup = new Group(nameText, key);
                 createGroup(newGroup);
             }
         });
 
         mCancelButton.setOnClickListener(new View.OnClickListener() {
-            /**
-             * The method called when the login button is clicked.
-             * Passes the current email and password into signIn()
-             * @param v the current View
-             */
             @Override
             public void onClick(View v) {
                 cancelActivity();
@@ -90,9 +81,6 @@ public class AddGroupActivity extends AppCompatActivity {
 
 
     private void createGroup(Group group) {
-        //mDirectoryRef.push().setValue(quote);
-        //String key = mGroups.push().getKey();
-        //Group group = new Group("sample", key, null, null);
         mDirectoryRef.push().setValue(group);
         mUserGroups.push().setValue(group);
 
@@ -158,6 +146,7 @@ public class AddGroupActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         mDynamicMenuItem.setVisible(false);
+        mAddMember.setVisible(false);
         return true;
     }
 

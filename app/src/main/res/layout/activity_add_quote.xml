@@ -18,11 +18,11 @@
         android:hint="Quote Here"
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.369"
+        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.266" />
+        app:layout_constraintVertical_bias="0.158" />
 
     <TextView
         android:id="@+id/quoteText"
@@ -34,11 +34,11 @@
         android:layout_marginTop="8dp"
         android:text="Enter quote here:"
         app:layout_constraintBottom_toTopOf="@+id/quoteEditText"
-        app:layout_constraintHorizontal_bias="0.157"
+        app:layout_constraintHorizontal_bias="0.214"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.888" />
+        app:layout_constraintVertical_bias="0.95" />
 
     <TextView
         android:id="@+id/speakerText"
@@ -50,16 +50,16 @@
         android:layout_marginTop="8dp"
         android:text="Enter who said the quote here:"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.229"
+        app:layout_constraintHorizontal_bias="0.296"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/quoteEditText"
-        app:layout_constraintVertical_bias="0.072" />
+        app:layout_constraintVertical_bias="0.059" />
 
     <EditText
         android:id="@+id/speakerEditText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="263dp"
+        android:layout_height="44dp"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -68,16 +68,16 @@
         android:hint="Who said it?"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.267"
+        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/speakerText"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.019" />
 
     <Button
         android:id="@+id/submitQuoteButton"
-        android:layout_width="110dp"
-        android:layout_height="48dp"
+        android:layout_width="254dp"
+        android:layout_height="68dp"
         android:layout_marginBottom="99dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -87,22 +87,21 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/speakerEditText"
-        app:layout_constraintVertical_bias="0.446"
-        app:layout_constraintHorizontal_bias="0.158" />
+        app:layout_constraintVertical_bias="0.267" />
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="111dp"
         android:layout_height="47dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.285"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@+id/speakerEditText"
-        app:layout_constraintVertical_bias="0.167"
-        app:layout_constraintLeft_toRightOf="@+id/submitQuoteButton" />
+        app:layout_constraintVertical_bias="0.946"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0.031" />
 </android.support.constraint.ConstraintLayout>

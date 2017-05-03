@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button mLoginButton;
     private Button mSignUpButton;
     private MenuItem mDynamicMenuItem;
+    private MenuItem mAddMember;
 
     /**
      * This method is called when the activity is first
@@ -150,8 +151,6 @@ public class LoginActivity extends AppCompatActivity {
              */
             @Override
             public void onClick(View v) {
-
-
                 String email = mEmailEditText.getText().toString();
                 String password = mPswdEditText.getText().toString();
                 signIn(email, password);
@@ -228,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                         else {
                             Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
-                            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             getApplicationContext().startActivity(intent);
                         }
                     }
@@ -237,18 +236,18 @@ public class LoginActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         setTitle(R.string.app_name);
         getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_add_group).setVisible(false);
+        mDynamicMenuItem.setVisible(false);
+        mAddMember.setVisible(false);
         return true;
     }
 

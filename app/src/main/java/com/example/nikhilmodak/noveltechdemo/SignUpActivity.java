@@ -19,10 +19,12 @@ public class SignUpActivity extends AppCompatActivity {
 
     private TextView mUsernameText;
     private Button mSubmitButton;
+    private Button mCancelButton;
 
     private String email;
     private String userID;
     private MenuItem mDynamicMenuItem;
+    private MenuItem mAddMember;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,7 @@ public class SignUpActivity extends AppCompatActivity {
     private void initializeUIFields() {
         mUsernameText = (TextView) findViewById(R.id.usernameText);
         mSubmitButton = (Button) findViewById(R.id.submitButton);
+        mCancelButton = (Button) findViewById(R.id.cancelButton);
         mSubmitButton.setOnClickListener(new View.OnClickListener() {
             /**
              * Gives the submit button a method to set values to
@@ -49,18 +52,36 @@ public class SignUpActivity extends AppCompatActivity {
                 createNewUser();
             }
         });
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Gives the submit button a method to set values to
+             * the Firebase database.
+             * @param v the current View
+             */
+            @Override
+            public void onClick(View v) {
+                cancelActivity();
+            }
+        });
     }
 
     private void createNewUser() {
         String username = mUsernameText.getText().toString();
         User newUser = new User(username, email, userID);
 
-        DatabaseReference usersRef = myRef.child("Users");
+        DatabaseReference usersRef = myRef.child(DatabaseKeyConstants.USERS);
         DatabaseReference childRef = usersRef.child(userID);
         childRef.setValue(newUser);
 
         Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
-        getApplicationContext().startActivity(intent);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    private void cancelActivity() {
+        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     @Override
@@ -70,13 +91,15 @@ public class SignUpActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.mymenu, menu);
         // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.action_add_group).setVisible(false);
+        mDynamicMenuItem.setVisible(false);
+        mAddMember.setVisible(false);
         return true;
     }
 

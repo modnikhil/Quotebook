@@ -10,8 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,11 +17,8 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 
 /**
@@ -38,11 +33,8 @@ import com.squareup.picasso.Picasso;
 public class GroupsActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
-    private DatabaseReference mDirectoryRef;
-    private DatabaseReference mGroups;
     private DatabaseReference mUserGroups;
     private FirebaseUser user;
-
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -99,8 +91,6 @@ public class GroupsActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mDirectoryRef = database.getReference("Directory");
-        mGroups = database.getReference("Groups");
         mUserGroups = database.getReference("Users").child(user.getUid()).child("Groups");
     }
 
@@ -131,7 +121,6 @@ public class GroupsActivity extends AppCompatActivity {
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Launch PostDetailActivity
                         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
                         intent.putExtra("ID", model.getGroupID());
                         startActivity(intent);
@@ -140,55 +129,11 @@ public class GroupsActivity extends AppCompatActivity {
 
             }
 
-            @Override
-            protected Group parseSnapshot(DataSnapshot snapshot) {
-                return super.parseSnapshot(snapshot);
-            }
         };
 
         mGroupsRecyclerView.setAdapter(mAdapter);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        setTitle(R.string.groups);
-        getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
-        mDynamicMenuItem = menu.findItem(R.id.action_add_group);
-        mAddMember = menu.findItem(R.id.action_add_member);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        // Here is just a good place to update item
-        mDynamicMenuItem.setVisible(true);
-        mAddMember.setVisible(false);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-        switch (item.getItemId()) {
-            case R.id.action_add_group:
-                //String key = mGroups.push().getKey();
-                //Group group = new Group("sample", key);
-                //mDirectoryRef.push().setValue(group);
-                intent = new Intent(getApplicationContext(), AddGroupActivity.class);
-                //intent.putExtra("groupID", groupID);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                getApplicationContext().startActivity(intent);
-                return true;
-
-            default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -203,9 +148,9 @@ public class GroupsActivity extends AppCompatActivity {
         if (mAdapter != null) {
             mAdapter.cleanup();
         }
-        if (mAuthListener != null) {
-            mAuth.removeAuthStateListener(mAuthListener);
-        }
+        //if (mAuthListener != null) {
+        //    mAuth.removeAuthStateListener(mAuthListener);
+        //}
     }
 
     public static class GroupViewHolder extends RecyclerView.ViewHolder {
@@ -218,5 +163,47 @@ public class GroupsActivity extends AppCompatActivity {
             mImageView = (ImageView) view.findViewById(R.id.imageView);
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        setTitle(R.string.groups);
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+
+        mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        mDynamicMenuItem.setVisible(true);
+        mAddMember.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_add_group:
+                intent = new Intent(getApplicationContext(), AddGroupActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                getApplicationContext().startActivity(intent);
+                return true;
+            case R.id.action_add_member:
+                if (mAuthListener != null) {
+                    mAuth.removeAuthStateListener(mAuthListener);
+                }
+                intent = new Intent(getApplicationContext(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                getApplicationContext().startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
 }

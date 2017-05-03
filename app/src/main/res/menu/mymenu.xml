@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_add_group"
-        android:icon="@drawable/ic_add_black_24dp"
+        android:icon="@drawable/iconmonstr_plus"
         android:title="@string/app_name"
         app:showAsAction="always" />
     <item

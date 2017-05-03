@@ -1,6 +1,7 @@
 package com.example.nikhilmodak.noveltechdemo;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -82,7 +83,7 @@ public class QuotesActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         groupID = getIntent().getStringExtra("ID");
-        mDirectoryRef = database.getReference("Groups").child(groupID);
+        mDirectoryRef = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
     }
 
     /**
@@ -101,9 +102,6 @@ public class QuotesActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //System.out.println(user.getUid());
-//        initializeFirebaseDBFields();
-
         mAdapter = new FirebaseRecyclerAdapter<Quote, QuoteViewHolder>(Quote.class,
                 R.layout.quote_list_item, QuoteViewHolder.class, mDirectoryRef) {
             @Override
@@ -111,7 +109,7 @@ public class QuotesActivity extends AppCompatActivity {
                                               final Quote model, int position) {
 
                 mQuote = mDirectoryRef.child(model.getQuoteID());
-                mQuoteLikes = mQuote.child("likes");
+                mQuoteLikes = mQuote.child(DatabaseKeyConstants.LIKES);
                 if (model.getLikes().get(user.getUid()) != null && model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid())) {
                     viewHolder.mImageView.setImageResource(R.drawable.favorited_heart);
                 }
@@ -123,7 +121,7 @@ public class QuotesActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         mQuote = mDirectoryRef.child(model.getQuoteID());
-                        mQuoteLikes = mQuote.child("likes");
+                        mQuoteLikes = mQuote.child(DatabaseKeyConstants.LIKES);
                         handleLike(model, user.getUid());
                         viewHolder.mFavorites.setText(String.valueOf(model.getLikes().size()));
                         if (model.getLikes().get(user.getUid()) != null && model.getLikes().get(user.getUid()).equalsIgnoreCase(user.getUid())) {
@@ -135,16 +133,11 @@ public class QuotesActivity extends AppCompatActivity {
                     }
                 });
 
-
-                viewHolder.mTextView.setText(model.getQuote());
+                viewHolder.mTextView.setTypeface(null, Typeface.ITALIC);
+                viewHolder.mTextView.setText("\""+ model.getQuote() + "\"");
                 viewHolder.mFavorites.setText(String.valueOf(model.getLikes().size()));
+                viewHolder.mSpeakerTextView.setText("-" + model.getSpeaker());
 
-
-            }
-
-            @Override
-            protected Quote parseSnapshot(DataSnapshot snapshot) {
-                return super.parseSnapshot(snapshot);
             }
         };
 
@@ -170,22 +163,7 @@ public class QuotesActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        setTitle(R.string.quotes);
-        getMenuInflater().inflate(R.menu.mymenu, menu);
-        mDynamicMenuItem = menu.findItem(R.id.action_add_group);
-        mAddMember = menu.findItem(R.id.action_add_member);
-        return true;
-    }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        mDynamicMenuItem.setVisible(true);
-        mAddMember.setVisible(true);
-        return true;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -219,14 +197,34 @@ public class QuotesActivity extends AppCompatActivity {
 
     public static class QuoteViewHolder extends RecyclerView.ViewHolder {
         TextView mTextView;
+        TextView mSpeakerTextView;
         ImageView mImageView;
         TextView mFavorites;
 
         public QuoteViewHolder(View view) {
             super(view);
+            mSpeakerTextView = (TextView) view.findViewById(R.id.speakerTextView);
             mTextView = (TextView) view.findViewById(R.id.titleTextView);
             mImageView = (ImageView) view.findViewById(R.id.imageView);
             mFavorites = (TextView) view.findViewById(R.id.ratingTextView);
         }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        setTitle(R.string.quotes);
+        getMenuInflater().inflate(R.menu.mymenu, menu);
+        mDynamicMenuItem = menu.findItem(R.id.action_add_group);
+        mAddMember = menu.findItem(R.id.action_add_member);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        mDynamicMenuItem.setVisible(true);
+        mAddMember.setVisible(true);
+        return true;
     }
 }

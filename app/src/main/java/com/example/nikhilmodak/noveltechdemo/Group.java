@@ -6,71 +6,44 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 /**
+ * This class represents a group object that contains
+ * all the quotes and also keeps track of which users are
+ * a part of the group. Each group has a unique ID in the
+ * Firebase Realtime Database.
  * Created by Nikhil Modak on 4/18/2017.
  */
-
-public class Group implements Parcelable{
+public class Group {
 
     private String name;
     private String groupID;
-    private ArrayList<User> users;
-    private ArrayList<Quote> quotes;
 
     public Group() {
         name = "name";
         groupID = "ID";
-        users = null;
-        quotes = null;
     }
 
     public Group(String name, String groupID) {
         this.name = name;
         this.groupID = groupID;
-        this.users = null;
-        this.quotes = null;
     }
 
-    protected Group(Parcel in) {
-        name = in.readString();
-        groupID = in.readString();
-    }
 
-    public static final Creator<Group> CREATOR = new Creator<Group>() {
-        @Override
-        public Group createFromParcel(Parcel in) {
-            return new Group(in);
-        }
-
-        @Override
-        public Group[] newArray(int size) {
-            return new Group[size];
-        }
-    };
-
-    public ArrayList<User> getUsers() {
-        return users;
-    }
-
-    public ArrayList<Quote> getQuotes() {
-        return quotes;
-    }
-
+    /**
+     * Returns the name of the group
+     * @return name of group
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the Firebase ID of the group
+     * @return ID of group
+     */
     public String getGroupID() {
         return groupID;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(name);
-        parcel.writeString(groupID);
-    }
+
 }

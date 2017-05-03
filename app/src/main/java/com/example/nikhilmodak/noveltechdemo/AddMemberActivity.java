@@ -1,7 +1,6 @@
 package com.example.nikhilmodak.noveltechdemo;
 
 import android.content.Intent;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,7 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 public class AddMemberActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
-    private DatabaseReference mDirectoryRef;
+    private DatabaseReference mDirectory;
     private DatabaseReference mGroups;
     private DatabaseReference mUsers;
     private FirebaseUser user;
@@ -72,7 +71,6 @@ public class AddMemberActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String member = mMemberEditText.getText().toString();
-
                 addMember(member);
             }
         });
@@ -121,11 +119,11 @@ public class AddMemberActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mGroups = database.getReference("Groups");
+        mGroups = database.getReference(DatabaseKeyConstants.GROUPS);
         groupID = getIntent().getStringExtra("groupID");
-        mDirectoryRef = mGroups.child(groupID);
-        mUsers = database.getReference("Users");
-        database.getReference("Directory").addListenerForSingleValueEvent(new ValueEventListener() {
+        mDirectory = mGroups.child(groupID);
+        mUsers = database.getReference(DatabaseKeyConstants.USERS);
+        database.getReference(DatabaseKeyConstants.DIRECTORY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -144,7 +142,6 @@ public class AddMemberActivity extends AppCompatActivity {
     }
 
     private void addMember(final String email) {
-        //mDirectoryRef.push().setValue(group);
         mUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -152,7 +149,7 @@ public class AddMemberActivity extends AppCompatActivity {
                     User user = snapshot.getValue(User.class);
                     System.out.println(user.getEmail().equalsIgnoreCase(email));
                     if (user.getEmail().equalsIgnoreCase(email)) {
-                        mUsers.child(user.getUserID()).child("Groups").push().setValue(group);
+                        mUsers.child(user.getUserID()).child(DatabaseKeyConstants.GROUPS).push().setValue(group);
                     }
                 }
             }
@@ -160,21 +157,21 @@ public class AddMemberActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+        intent.putExtra("ID", groupID);
         startActivity(intent);
     }
 
     private void cancelActivity() {
-        Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
+        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+        intent.putExtra("ID", groupID);
         startActivity(intent);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        setTitle(R.string.add_group);
+        setTitle(R.string.add_member);
         getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
         mAddMember = menu.findItem(R.id.action_add_member);
         return true;
@@ -184,6 +181,7 @@ public class AddMemberActivity extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         mDynamicMenuItem.setVisible(false);
+        mAddMember.setVisible(false);
         return true;
     }
 }

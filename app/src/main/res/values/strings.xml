@@ -15,6 +15,7 @@
     <string name="quotes">My Group\'s Quotes</string>
     <string name="add_quote">Add A Quote</string>
     <string name="add_group">Add A Group</string>
+    <string name="add_member">Add A Member</string>
 
 
     <!-- Strings related to login -->
