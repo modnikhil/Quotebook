@@ -61,11 +61,55 @@ public class GroupsActivity extends AppCompatActivity {
     }
 
     /**
+     * On the activity starting, create the recycler view's adapter
+     * such that each item represents a group in the mUserGroup database
+     * reference. Each item will be updated with each group's appropriate
+     * name and image.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        mAuth.addAuthStateListener(mAuthListener);
+        mAdapter = new FirebaseRecyclerAdapter<Group, GroupViewHolder>(Group.class,
+                R.layout.group_list_item , GroupViewHolder.class, mUserGroups) {
+            @Override
+            protected void populateViewHolder(GroupViewHolder viewHolder,
+                                              final Group model, int position) {
+                viewHolder.mTextView.setText(model.getName());
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
+                        intent.putExtra("ID", model.getGroupID());
+                        startActivity(intent);
+                    }
+                });
+            }
+        };
+
+        mGroupsRecyclerView.setAdapter(mAdapter);
+    }
+
+    /**
+     * This is the onStop method called when the
+     * activity is stopped. It does everything the method
+     * normally does in addition to removing a listener from the
+     * mAuth field if it contains one.
+     */
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mAdapter != null) {
+            mAdapter.cleanup();
+        }
+    }
+
+    /**
      * This method initializes the Firebase fields
      * needed to read and write entities to the database.
-     * It also adds a listener to the reference requested to
-     * check for when the reference is updated (e.g. keys are
-     * inserted, updated, removed).
+     * It also adds a listener to the mAuth to
+     * check for when mAuth is updated.
      */
     private void initializeFirebaseDBFields() {
         mAuth = FirebaseAuth.getInstance();
@@ -82,14 +126,14 @@ public class GroupsActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mUserGroups = database.getReference("Users").child(user.getUid()).child("Groups");
+        mUserGroups = database.getReference(DatabaseKeyConstants.USERS)
+                .child(user.getUid()).child(DatabaseKeyConstants.GROUPS);
     }
 
     /**
      * This method simply initializes all the UI fields
-     * in the activity and gives the submit button an onClick
-     * method. When it it clicked, it should update the database
-     * with the values enetered into the edit texts.
+     * in the activity, specifically the recycler view for
+     * the group items.
      */
     private void initializeUIFields() {
         mGroupsRecyclerView = (RecyclerView) findViewById(R.id.groupsRecyclerView);
@@ -97,52 +141,10 @@ public class GroupsActivity extends AppCompatActivity {
         mGroupsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-        mAuth.addAuthStateListener(mAuthListener);
-        mAdapter = new FirebaseRecyclerAdapter<Group, GroupViewHolder>(Group.class,
-                R.layout.group_list_item , GroupViewHolder.class, mUserGroups) {
-            @Override
-            protected void populateViewHolder(GroupViewHolder viewHolder,
-                                              final Group model, int position) {
-                viewHolder.mTextView.setText(model.getName());
-
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
-                        intent.putExtra("ID", model.getGroupID());
-                        startActivity(intent);
-                    }
-                });
-
-            }
-
-        };
-
-        mGroupsRecyclerView.setAdapter(mAdapter);
-    }
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        invalidateOptionsMenu();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mDynamicMenuItem.setVisible(false);
-        if (mAdapter != null) {
-            mAdapter.cleanup();
-        }
-    }
-
+    /**
+     * This class represents the View Holder for the RecyclerView
+     * that represents all the group items for the user.
+     */
     public static class GroupViewHolder extends RecyclerView.ViewHolder {
         TextView mTextView;
         ImageView mImageView;
@@ -154,6 +156,13 @@ public class GroupsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * On creating the menu bar, set the title of it
+     * to the appropriate activity, inflate the menu,
+     * and populate it with the appropriate icons.
+     * @param menu the menu bar to populate
+     * @return whether the menu was created or not
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         setTitle(R.string.groups);
@@ -164,6 +173,14 @@ public class GroupsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * On preparing the action bar, do what is normally
+     * done to prepare the bar but also set the visibility
+     * of the add item to true and the misc. icon to true;
+     * Also change the misc. icon to the log out icon.
+     * @param menu the menu to prepare
+     * @return if the menu was prepared or not
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -173,6 +190,15 @@ public class GroupsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * This method decides what happens depending on what icon
+     * is selected. If the add group button is pressed, go to
+     * the add group activity. If the log out icon is pressed,
+     * log out and go to the log in activity, else handle the method
+     * normally.
+     * @param item the item that was selected
+     * @return if the item completed a task or not
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;

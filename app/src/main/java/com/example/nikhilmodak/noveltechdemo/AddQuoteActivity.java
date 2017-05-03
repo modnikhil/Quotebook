@@ -12,10 +12,18 @@ import android.widget.EditText;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+/**
+ * This activity is where users can add quotes to
+ * the current group they are in. The user can input the text
+ * of the quote and the speaker.
+ * @source https://developer.android.com/guide/topics/ui/menus.html
+ * @source https://firebase.google.com/docs/auth/
+ * @source https://firebase.google.com/docs/database/android/read-and-write
+ */
 public class AddQuoteActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
-    private DatabaseReference mDirectoryRef;
+    private DatabaseReference mGroup;
 
     private MenuItem mDynamicMenuItem;
     private MenuItem mAddMember;
@@ -27,6 +35,12 @@ public class AddQuoteActivity extends AppCompatActivity {
     private String groupID;
 
 
+    /**
+     * This method is called when the activity is first
+     * launched. It calls functions that initialize the Firebase
+     * fields and the UI fields.
+     * @param savedInstanceState the last saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +52,10 @@ public class AddQuoteActivity extends AppCompatActivity {
 
     /**
      * This method simply initializes all the UI fields
-     * in the activity and gives the login button and
-     * sign up button an onClick method. When the login
-     * is clicked, it should check to see if the account exists
-     * in the database. When sign up is clicked, a new account
-     * is created.
+     * in the activity and gives the submit button and
+     * cancel button an onClick method. When the submit
+     * is clicked, it should create the new quote. When cancel
+     * is clicked, the quotes screen is prompted again.
      */
     private void initializeUIFields() {
         mQuoteEditText = (EditText) findViewById(R.id.quoteEditText);
@@ -81,26 +94,34 @@ public class AddQuoteActivity extends AppCompatActivity {
     /**
      * This method initializes the Firebase fields
      * needed to read and write entities to the database.
-     * It also adds a listener to the reference requested to
-     * check for when the reference is updated (e.g. keys are
-     * inserted, updated, removed).
      */
     private void initializeFirebaseDBFields() {
         database = FirebaseDatabase.getInstance();
         groupID = getIntent().getStringExtra("groupID");
-        System.out.println(groupID);
-        mDirectoryRef = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
+        mGroup = database.getReference(DatabaseKeyConstants.GROUPS).child(groupID);
     }
 
 
+    /**
+     * This method adds a new quote to the groups branch
+     * of the database so the quote can later be queried
+     * for further operations. The quotes activity is then
+     * called.
+     * @param quoteText the text of the quote
+     * @param speaker the speaker of the quote
+     */
     private void createQuote(String quoteText, String speaker) {
-        String key = mDirectoryRef.push().getKey();
+        String key = mGroup.push().getKey();
         Quote newQuote = new Quote(quoteText, speaker, key);
-        mDirectoryRef.child(key).setValue(newQuote);
+        mGroup.child(key).setValue(newQuote);
 
         cancelActivity();
     }
 
+    /**
+     * This method cancels any progress made and returns
+     * the user to the previous activity.
+     */
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -108,7 +129,13 @@ public class AddQuoteActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    /**
+     * On creating the menu bar, set the title of it
+     * to the appropriate activity, inflate the menu,
+     * and populate it with the appropriate icons.
+     * @param menu the menu bar to populate
+     * @return whether the menu was created or not
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -120,6 +147,13 @@ public class AddQuoteActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * On preparing the action bar, do what is normally
+     * done to prepare the bar but also set the visibility
+     * of the add item to false and the misc. icon to false;
+     * @param menu the menu to prepare
+     * @return if the menu was prepared or not
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);

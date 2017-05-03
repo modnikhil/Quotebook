@@ -90,7 +90,8 @@ public class LoginActivity extends AppCompatActivity {
      * This method initializes the Firebase fields
      * needed to authorize users to the database.
      * It also initializes the listener to an AuthStateListener
-     * to catch changes in the logging of users.
+     * to catch changes in the logging of users. If the user is
+     * already logged in, go straight to the groups activity.
      */
     private void initializeFirebaseFields() {
         mAuth = FirebaseAuth.getInstance();
@@ -214,11 +215,7 @@ public class LoginActivity extends AppCompatActivity {
                      */
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(getString(R.string.log_in),
-                                getString(R.string.sign_in_success) + task.isSuccessful());
                         if (!task.isSuccessful()) {
-                            Log.w(getString(R.string.log_in),
-                                    getString(R.string.sign_in_failed), task.getException());
                             Toast.makeText(LoginActivity.this, R.string.incorrect_email_password,
                                     Toast.LENGTH_SHORT).show();
                         }
@@ -251,8 +248,6 @@ public class LoginActivity extends AppCompatActivity {
                      */
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(getString(R.string.create),
-                                getString(R.string.create_acc_success) + task.isSuccessful());
                         if (!task.isSuccessful()) {
                             Toast.makeText(LoginActivity.this,
                                     R.string.error_invalid_email,
@@ -269,7 +264,13 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * On creating the menu bar, set the title of it
+     * to the appropriate activity, inflate the menu,
+     * and populate it with the appropriate icons.
+     * @param menu the menu bar to populate
+     * @return whether the menu was created or not
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         setTitle(R.string.app_name);
@@ -279,6 +280,13 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * On preparing the action bar, do what is normally
+     * done to prepare the bar but also set the visibility
+     * of the add item to false and the misc. icon to false;
+     * @param menu the menu to prepare
+     * @return if the menu was prepared or not
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);

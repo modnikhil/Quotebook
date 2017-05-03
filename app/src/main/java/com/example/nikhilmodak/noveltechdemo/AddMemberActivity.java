@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,11 +18,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+/**
+ * This activity is where users can add new members to their
+ * group by entering the new members email.
+ * @source https://developer.android.com/guide/topics/ui/menus.html
+ * @source https://firebase.google.com/docs/auth/
+ * @source https://firebase.google.com/docs/database/android/read-and-write
+ */
 public class AddMemberActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private DatabaseReference mDirectory;
-    private DatabaseReference mGroups;
     private DatabaseReference mUsers;
     private FirebaseUser user;
 
@@ -40,10 +45,17 @@ public class AddMemberActivity extends AppCompatActivity {
     private Group group;
 
 
+    /**
+     * This method is called when the activity is first
+     * launched. It calls functions that initialize the Firebase
+     * fields and the UI fields.
+     * @param savedInstanceState the last saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_member);
+
         initializeUIFields();
         initializeFirebaseDBFields();
     }
@@ -51,11 +63,10 @@ public class AddMemberActivity extends AppCompatActivity {
 
     /**
      * This method simply initializes all the UI fields
-     * in the activity and gives the login button and
-     * sign up button an onClick method. When the login
-     * is clicked, it should check to see if the account exists
-     * in the database. When sign up is clicked, a new account
-     * is created.
+     * in the activity and gives the submit button and
+     * cancel button an onClick method. When the submit
+     * is clicked, it should add the new member. When cancel
+     * is clicked, the quotes screen is prompted again.
      */
     private void initializeUIFields() {
         mMemberEditText = (EditText) findViewById(R.id.memberEditText);
@@ -91,13 +102,12 @@ public class AddMemberActivity extends AppCompatActivity {
     /**
      * This method initializes the Firebase fields
      * needed to read and write entities to the database.
-     * It also adds a listener to the reference requested to
-     * check for when the reference is updated (e.g. keys are
-     * inserted, updated, removed).
+     * It also adds a listener to mAuth requested to
+     * check for when mAuth is updated. It also finds
+     * the group object represented by the passed groupID.
      */
     private void initializeFirebaseDBFields() {
         mAuth = FirebaseAuth.getInstance();
-        //user = mAuth.getCurrentUser();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             /**
              * This method is prompted when a user logs in or logs out.
@@ -110,17 +120,21 @@ public class AddMemberActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mGroups = database.getReference(DatabaseKeyConstants.GROUPS);
-        groupID = getIntent().getStringExtra("groupID");
-        mDirectory = mGroups.child(groupID);
+        mDirectory = database.getReference(DatabaseKeyConstants.DIRECTORY);
         mUsers = database.getReference(DatabaseKeyConstants.USERS);
-        database.getReference(DatabaseKeyConstants.DIRECTORY).addListenerForSingleValueEvent(new ValueEventListener() {
+        groupID = getIntent().getStringExtra("groupID");
+        findGroupFromID();
+    }
+
+    /**
+     * This method finds the corresponding group object
+     * from the passed groupID from the extras.
+     */
+    private void findGroupFromID() {
+        mDirectory.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Group tempGroup = snapshot.getValue(Group.class);
-                    System.out.println(groupID);
-                    System.out.println(tempGroup.getGroupID());
                     if (snapshot.getValue(Group.class).getGroupID().equalsIgnoreCase(groupID)) {
                         group = snapshot.getValue(Group.class);
                     }
@@ -132,6 +146,14 @@ public class AddMemberActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * This method adds a new member to the group
+     * by retreiving the current group object the
+     * current user is in and then queries the user
+     * branch to find the requested user and add the
+     * group object to that user.
+     * @param email the email of the requested user
+     */
     private void addMember(final String email) {
         mUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -151,6 +173,10 @@ public class AddMemberActivity extends AppCompatActivity {
         cancelActivity();
     }
 
+    /**
+     * This method cancels any progress made and returns
+     * the user to the previous activity.
+     */
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), QuotesActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -158,6 +184,13 @@ public class AddMemberActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * On creating the menu bar, set the title of it
+     * to the appropriate activity, inflate the menu,
+     * and populate it with the appropriate icons.
+     * @param menu the menu bar to populate
+     * @return whether the menu was created or not
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         setTitle(R.string.add_member);
@@ -167,6 +200,13 @@ public class AddMemberActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * On preparing the action bar, do what is normally
+     * done to prepare the bar but also set the visibility
+     * of the add item to false and the misc. icon to false;
+     * @param menu the menu to prepare
+     * @return if the menu was prepared or not
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);

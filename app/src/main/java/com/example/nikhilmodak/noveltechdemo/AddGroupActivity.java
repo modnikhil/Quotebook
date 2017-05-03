@@ -16,6 +16,14 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+/**
+ * This activity is where users can add new groups. All
+ * they have to do is enter a name for the group and it is
+ * created. Additional members can be added later.
+ * @source https://developer.android.com/guide/topics/ui/menus.html
+ * @source https://firebase.google.com/docs/auth/
+ * @source https://firebase.google.com/docs/database/android/read-and-write
+ */
 public class AddGroupActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
@@ -33,6 +41,12 @@ public class AddGroupActivity extends AppCompatActivity {
     private Button mSubmitButton;
     private Button mCancelButton;
 
+    /**
+     * This method is called when the activity is first
+     * launched. It calls functions that initialize the Firebase
+     * fields and the UI fields.
+     * @param savedInstanceState the last saved state of the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,11 +59,10 @@ public class AddGroupActivity extends AppCompatActivity {
 
     /**
      * This method simply initializes all the UI fields
-     * in the activity and gives the login button and
-     * sign up button an onClick method. When the login
-     * is clicked, it should check to see if the account exists
-     * in the database. When sign up is clicked, a new account
-     * is created.
+     * in the activity and gives the submit button and
+     * cancel button an onClick method. When the submit
+     * is clicked, it should create the new group. When cancel
+     * is clicked, the groups screen is prompted again.
      */
     private void initializeUIFields() {
         mNameEditText = (EditText) findViewById(R.id.nameEditText);
@@ -80,6 +93,13 @@ public class AddGroupActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * This method adds a new group to the directory branch
+     * of the database so the group can later be queried
+     * for further operations. The groups activity is then
+     * called.
+     * @param group the group to add to the branch
+     */
     private void createGroup(Group group) {
         mDirectoryRef.push().setValue(group);
         mUserGroups.push().setValue(group);
@@ -89,19 +109,21 @@ public class AddGroupActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * This method cancels any progress made and returns
+     * the user to the previous activity.
+     */
     private void cancelActivity() {
         Intent intent = new Intent(getApplicationContext(), GroupsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
-
     /**
      * This method initializes the Firebase fields
      * needed to read and write entities to the database.
-     * It also adds a listener to the reference requested to
-     * check for when the reference is updated (e.g. keys are
-     * inserted, updated, removed).
+     * It also adds a listener to mAuth requested to
+     * check for when mAuth is updated.
      */
     private void initializeFirebaseDBFields() {
         mAuth = FirebaseAuth.getInstance();
@@ -118,30 +140,35 @@ public class AddGroupActivity extends AppCompatActivity {
         };
 
         database = FirebaseDatabase.getInstance();
-        mDirectoryRef = database.getReference("Directory");
-        mGroups = database.getReference("Groups");
-        mUserGroups = database.getReference("Users").child(user.getUid()).child("Groups");
+        mDirectoryRef = database.getReference(DatabaseKeyConstants.DIRECTORY);
+        mGroups = database.getReference(DatabaseKeyConstants.GROUPS);
+        mUserGroups = database.getReference(DatabaseKeyConstants.USERS)
+                .child(user.getUid()).child(DatabaseKeyConstants.GROUPS);
     }
-
 
     /**
      * On creating the menu bar, set the title of it
      * to the appropriate activity, inflate the menu,
-     * and populate it with the appropriate
+     * and populate it with the appropriate icons.
      * @param menu the menu bar to populate
      * @return whether the menu was created or not
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         setTitle(R.string.add_group);
         getMenuInflater().inflate(R.menu.mymenu, menu);
-        // Get dynamic menu item
         mDynamicMenuItem = menu.findItem(R.id.action_add_group);
         mAddMember = menu.findItem(R.id.action_add_member);
         return true;
     }
 
+    /**
+     * On preparing the action bar, do what is normally
+     * done to prepare the bar but also set the visibility
+     * of the add item to false and the misc. icon to false;
+     * @param menu the menu to prepare
+     * @return if the menu was prepared or not
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
